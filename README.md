@@ -9,4 +9,17 @@
 8. To use github actions, you repositories should be under github organizations.
 9. To use github actions, you need to create workflow files in .github/workflows/blank.yml directory in your repository.
 10. workflows nothing but a pipeline.
-11. 
+
+
+
+Github Branch ---> Compile Code ---> SCA Code Quality ---> Security Checks of Code --> Unit Testing ---> Integration Testing ---> Build Artifacts (Binaries) ---> Version the Package ---> Store Binaries in Nexus/JFrog Artifactory (ECR) ---> Deploy to Dev/QA/Prod Environments.
+
+
+Static Code Analysis Tools (SCA) - SonarQube, Checkmarx, Veracode, Snyk, WhiteSource, Fortify
+
+
+##
+Workflows are our pipelines
+Job - Job can have number of steps
+Step - A step can be an action or a script to be executed
+Action - An action is a reusable extension that can be used in a step
