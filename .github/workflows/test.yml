@@ -60,7 +60,7 @@ jobs:
 
   security-check:
     runs-on: ubuntu-latest
-    needs: [Integration-testing]
+    needs: [unit-testing, Integration-testing]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
