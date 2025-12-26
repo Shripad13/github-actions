@@ -28,7 +28,7 @@ jobs:
 
   security-check-sast:
     runs-on: ubuntu-latest
-    needs: [static-code-analysis]    
+    needs: [Compile]    
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -36,7 +36,7 @@ jobs:
 
   security-check-sca:
     runs-on: ubuntu-latest
-    needs: [security-check-sast]
+    needs: [Compile]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -52,7 +52,7 @@ jobs:
 
   Integration-testing:
     runs-on: ubuntu-latest
-    needs: [unit-testing]
+    needs: [security-check-sca]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -68,7 +68,7 @@ jobs:
 
   build-docker-image:
     runs-on: ubuntu-latest
-    needs: [security-check]
+    needs: [unit-testing, Integration-testing]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -117,7 +117,7 @@ jobs:
 
   prod-deployment:
     runs-on: ubuntu-latest
-    needs: [End-to-End-testing]
+    needs: [functional-testing, End-to-End-testing]
     environment: PROD
     steps:
       - uses: actions/checkout@v4
