@@ -20,6 +20,7 @@ jobs:
 
   static-code-analysis:
     runs-on: ubuntu-latest
+    needs: [Compile]
     steps:
       - uses: actions/checkout@v4
       - name: Run a one-line script
@@ -27,6 +28,7 @@ jobs:
 
   security-check-sast:
     runs-on: ubuntu-latest
+    needs: [static-code-analysis]    
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -34,6 +36,7 @@ jobs:
 
   security-check-sca:
     runs-on: ubuntu-latest
+    needs: [security-check-sast]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -41,6 +44,7 @@ jobs:
 
   unit-testing:
     runs-on: ubuntu-latest
+    needs: [security-check-sca]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -48,6 +52,7 @@ jobs:
 
   Integration-testing:
     runs-on: ubuntu-latest
+    needs: [unit-testing]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -55,6 +60,7 @@ jobs:
 
   security-check:
     runs-on: ubuntu-latest
+    needs: [Integration-testing]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -62,6 +68,7 @@ jobs:
 
   build-docker-image:
     runs-on: ubuntu-latest
+    needs: [security-check]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -69,6 +76,7 @@ jobs:
 
   uploading-image:
     runs-on: ubuntu-latest
+    needs: [build-docker-image]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -76,6 +84,7 @@ jobs:
 
   dev-deployment:
     runs-on: ubuntu-latest
+    needs: [uploading-image]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
@@ -83,13 +92,31 @@ jobs:
 
   qa-deployment:
     runs-on: ubuntu-latest
+    needs: [dev-deployment]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
         run: echo Hello, Shripad!                
 
+  functional-testing:
+    runs-on: ubuntu-latest
+    needs: [qa-deployment]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run a multi-line script
+        run: echo Hello, Shripad!
+
+  End-to-End-testing:
+    runs-on: ubuntu-latest
+    needs: [functional-testing]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run a multi-line script
+        run: echo Hello, Shripad!
+
   prod-deployment:
     runs-on: ubuntu-latest
+    needs: [End-to-End-testing]
     steps:
       - uses: actions/checkout@v4
       - name: Run a multi-line script
