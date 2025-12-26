@@ -23,3 +23,15 @@ Workflows are our pipelines
 Job - Job can have number of steps
 Step - A step can be an action or a script to be executed
 Action - An action is a reusable extension that can be used in a step
+Runners - will be maintained by you.
+
+# Github Action Runner Enrollment Steps -
+1. We can enroll the runner at repo level that means only workflows under that repo can use that self-hosted runner.
+2. We can also enroll the runner at organization level that means all the repos under that organization can use that self-hosted runner.
+3. Enterprise-Level runners can be assigned to multiple organizations in an enterprise account.
+   
+4. Go to your repo---> Settings ---> Actions ---> Runners ---> New self-hosted runner
+5. Select the OS of your runner (Linux/ Windows/ Mac)
+6. Follow the steps mentioned there to install the runner on your infra.
+7. Once the runner is installed, it will be in idle state waiting for the jobs to be assigned.
+8. Once the workflow is triggered, the jobs will be picked by the self-hosted runner & the steps will be executed.
