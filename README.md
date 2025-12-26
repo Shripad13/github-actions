@@ -35,3 +35,5 @@ Runners - will be maintained by you.
 6. Follow the steps mentioned there to install the runner on your infra.
 7. Once the runner is installed, it will be in idle state waiting for the jobs to be assigned.
 8. Once the workflow is triggered, the jobs will be picked by the self-hosted runner & the steps will be executed.
+
+> If self-hosted runner is not picking the jobs, then check the runner group & allow for public repositories if your repo is public.

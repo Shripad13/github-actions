@@ -1,4 +1,7 @@
 # This is a basic workflow to help you get started with Actions
+# use self-hosted runners when you have your own infrastructure to run jobs
+# Use ubuntu-latest when you want to use GitHub hosted runners
+
 
 name: Continuous Integration
 
@@ -12,14 +15,16 @@ on:
 
 jobs:
   Compile:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4    # 
+      - uses: actions/checkout@v4    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Run a one-line script
-        run: echo Hello, world!
+        run: hostname # print the hostname of the runner machine
 
   static-code-analysis:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [Compile]
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +32,8 @@ jobs:
         run: echo Hello, world!
 
   security-check-sast:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [Compile]    
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +41,8 @@ jobs:
         run: echo Hello, Shripad!
 
   security-check-sca:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [Compile]
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +50,8 @@ jobs:
         run: echo Hello, Shripad!
 
   unit-testing:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [security-check-sca]
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +59,8 @@ jobs:
         run: echo Hello, Shripad!        
 
   Integration-testing:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [security-check-sca]
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +68,8 @@ jobs:
         run: echo Hello, Shripad!        
 
   security-check:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [unit-testing, Integration-testing]
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +77,8 @@ jobs:
         run: echo Hello, Shripad!        
 
   build-docker-image:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [unit-testing, Integration-testing]
     steps:
       - uses: actions/checkout@v4
@@ -75,7 +86,8 @@ jobs:
         run: echo Hello, Shripad!        
 
   uploading-image:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [build-docker-image]
     steps:
       - uses: actions/checkout@v4
@@ -83,7 +95,8 @@ jobs:
         run: echo Hello, Shripad!        
 
   dev-deployment:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [uploading-image]
     steps:
       - uses: actions/checkout@v4
@@ -91,7 +104,8 @@ jobs:
         run: echo Hello, Shripad!
 
   qa-deployment:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: QA
     needs: [dev-deployment]
     steps:
@@ -100,7 +114,8 @@ jobs:
         run: echo Hello, Shripad!                
 
   functional-testing:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [qa-deployment]
     steps:
       - uses: actions/checkout@v4
@@ -108,7 +123,8 @@ jobs:
         run: echo Hello, Shripad!
 
   End-to-End-testing:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [functional-testing]
     steps:
       - uses: actions/checkout@v4
@@ -116,7 +132,8 @@ jobs:
         run: echo Hello, Shripad!
 
   prod-deployment:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [functional-testing, End-to-End-testing]
     environment: PROD
     steps:
