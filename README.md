@@ -17,6 +17,10 @@ Github Branch ---> Compile Code ---> SCA Code Quality ---> Security Checks of Co
 
 Static Code Analysis Tools (SCA) - SonarQube, Checkmarx, Veracode, Snyk, WhiteSource, Fortify
 
+> If you want to do Manual approval for any stage then you can add Environement in Settings & update Approval.
+> Also you keep Wait time if after approval also job should wait before triggering.
+
+
 
 ##
 Workflows are our pipelines
@@ -87,12 +91,12 @@ In Security Check or Testing:
  2. After the deployment, Using the endpoint of your application does the Whitebox Testing.
    
 
-'''
-Static Code Analysis - Pushed to the repo (SonarQube tool)
-SAST                 - Overall Security Posture of code (CheckMarx)
-Software Composition Analysis - Open Source libraries Vulnerability (CheckMarx SCA)
-DAST - endpoint of application can be tested (Whitebox testing (OWASP ZAP)
-'''
+```
+Static Code Analysis - Pushed to the repo & check as per org standards or not (SonarQube tool)
+SAST                 - Overall Security Posture of code (CheckMarx) & industry std
+Software Composition Analysis - Open Source libraries Vulnerability (CheckMarx SCA) & licensing issues or not?
+DAST - endpoint of application can be tested (Whitebox testing (OWASP ZAP, Acunetix)) (Post Deployment)
+```
 
 
 # Sonarqube Report Details- 
@@ -108,6 +112,14 @@ DAST - endpoint of application can be tested (Whitebox testing (OWASP ZAP)
 
 We can maintain Sonarqube on our server
 We can go with Software as Service
+
+# What is Quality Gate? Who will determine its passed or failed?
+
+> Important terms on SonarQube
+ Quality Gate
+ Quality Profile
+
+Update the Quality Gate as per our requirement & standards for Passed & Failed.
 
 
 # SonarQube Integration with GitHub Actions CI/CD Pipeline (Static Code Analysis) -
@@ -144,5 +156,83 @@ Solution - Use this gh API to fetch runner token dynamically from github secrets
 $ gh api --method POST -H "Accept: application/vnd.github+json" /repos/Shripad13/expense-backend/actions/runners/registration-token
 ```
 
-Installl Github CLI on the CI-Runner using ansible.
-$ curl -fsSL https://raw.githubuser | sudo bash
+
+# How to register Gitlab runner & token using gh cli on CI-Runner?
+
+1. Installl Github CLI on the CI-Runner using ansible.
+$ curl https://raw.githubusercontent.com/Shripad13/github-actions/refs/heads/main/gh-cli.sh | sudo bash
+
+2. Authenticate to Github
+$ gh auth login
+
+3. Generate the CLI token using below command
+$ gh api --method POST -H "Accept: application/vnd.github+json" /repos/Shripad13/expense-backend/actions/runners/registration-token |jq .token |xargs 
+$ gh api --method POST -H "Accept: application/vnd.github+json" /org/Shripad13/actions/runners/registration-token |jq .token |xargs
+
+
+# Next Steps -
+1. Sonar scanner to be installed on the CI-Runner using ansible.
+2. This ci-runner should scan the code & send the analysis report to sonarqube server.
+3. Then based on the result we will make a decision, whether to proceed with the deployment or not.
+4. If Sonarqube mentioned there are any vulnerabilities/ bugs/ code smells, we will fail the pipeline & notify the developers to fix the issues.
+
+# How to supply sonarqube URL to sonar scanner for pushing the report?
+Command for scanner -
+$ sudo sonar-scanner/sonar-scanner-6.2.1.4610-Linux-x64/bin/sonar-scanner -Dsonar.host.url=http://<Private IP>:9000 -Dsonar.projectKey=expense-backend -Dsonar.login=admin -Dsonar.password=<sonarqubepwd>
+
+# How ci runner can authenticate to vault & get the sonarqube password?
+Sonar password has to be stored on vault.
+ci-runner should authenticate to vault to get the Sonarqube password 
+before that, ci-runner needs a vault token, This vault token, will keep it on Github Password Manger, using this token ci-runner wll authenticates to vault & get the Sonarqube password.
+
+# Container scanning - 
+Container scanning tools analyze container images (like Docker) for vulnerabilities, misconfigurations, and secrets, integrating into CI/CD pipelines to find issues early, with popular open-source options like Trivy, Grype, and Clair, and enterprise platforms including Snyk, Wiz, Aqua Security, and Prisma Cloud, helping developers shift security left for more secure deployments. 
+
+Because we will have Base image in Docker image (node image/alpine image) that hsould not contain vulnerabilities & issues
+
+1. Push the image to ECR.
+2. Change scan setting to Manual on ECR. (IMP Step)
+3. Trigger ECR scan Manually.
+4. Wait for the scan to complete.
+5. Next get the findings of this image from ECR.
+6. Proceed only if the Vulnerabilities are zero.
+
+In Organization usually, When Critical & High vulenrabilities is zero in ECR for Image scanning then only it will proceed for next.
+
+
+# Command to start-image-scan
+```
+aws ecr start-image-scan --repository-name sample-repo --image-id imageTag=${e885e6}
+
+```
+
+0. Kubectl and Arcgo CLI should be installed on ci-runner
+1. EKS Dev deployment should be done by ci-runner using ArgoCD
+ 
+ >> Tunning
+ 1. We are not really deploying the image went through CI. 
+ 2. We need to update our helm-charts accordingly.
+ 3. gitsha should be supplied dynamically from the workflow.
+ 4. argocd app create should only happen if the app is not available.
+ 5. If the app is already available, if the imagetag is different, it should also do the deployment with the new image.
+   
+
+> Production Deployment (RFC)
+1. Before you Deploy anything on prod, it has to be presented & qualified in the CAB meeting.
+2. Is it tested on the lower env or not?
+3. When it was deployment in lower env (might have n days of cooling period)
+4. What is rollback strategy?
+5. Is it going ot cause any downtime?
+
+
+# Implement 4 golden signals for expense app on EKS
+1. Prometheus & grafana on Standalone instance, we dont need them anymore
+2. We can deploy rometheus & grafana on the same EKS Cluster
+
+#################################################################################
+
+
+## After CI CD, need to deploy APp on EKS instead of VM
+1. Would like to deploy prometheus & grafana on the EKS
+2. Deploy filebeat to extract the logs from the deployments & send to ELK
+3. Then Project the metrics on ELK
