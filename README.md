@@ -178,7 +178,7 @@ $ gh api --method POST -H "Accept: application/vnd.github+json" /org/Shripad13/a
 
 # How to supply sonarqube URL to sonar scanner for pushing the report?
 Command for scanner -
-$ sudo sonar-scanner/sonar-scanner-6.2.1.4610-Linux-x64/bin/sonar-scanner -Dsonar.host.url=http://<Private IP>:9000 -Dsonar.projectKey=expense-backend -Dsonar.login=admin -Dsonar.password=<sonarqubepwd>
+ $ sudo sonar-scanner/sonar-scanner-6.2.1.4610-Linux-x64/bin/sonar-scanner -Dsonar.host.url=http://<Private IP>:9000 -Dsonar.projectKey=expense-backend -Dsonar.login=admin -Dsonar.password=<sonarqubepwd>
 
 # How ci runner can authenticate to vault & get the sonarqube password?
 Sonar password has to be stored on vault.
@@ -236,3 +236,38 @@ aws ecr start-image-scan --repository-name sample-repo --image-id imageTag=${e88
 1. Would like to deploy prometheus & grafana on the EKS
 2. Deploy filebeat to extract the logs from the deployments & send to ELK
 3. Then Project the metrics on ELK
+
+
+
+### In DevSecOps, the Shift Left Model means:
+Shift Left is the practice of integrating security and quality checks as early as possible in the SDLC to prevent issues before they reach production.
+The goal is to prevent vulnerabilities instead of detecting them in production.
+
+Think of the SDLC timeline as moving left → right
+Idea → Code → Build → Test → Deploy → Operate
+🔁 Shift Left = catch problems as early as possible
+
+Why “Shift Left” Matters/important?
+Fixing issues earlier is:
+💸 Cheaper (bugs found in prod cost much more)
+⚡ Faster (no emergency patches)
+🔐 Safer (vulnerabilities caught before release)
+📉 Lower risk (less blast radius)
+
+🔁 Shift Right (Old Way)
+Vulnerability found in production → hotfix → downtime
+✅ Shift Left:
+Vulnerability caught during Pull Request → build fails → fixed before merge
+
+🔁 Common Tools Used in Shift Left DevSecOps
+SAST: SonarQube, Checkmarx
+SCA: Snyk, Dependabot
+IaC Scanning: Checkov, tfsec
+Containers: Trivy
+Policy: OPA, Kyverno
+
+# How do you measure Shift-Left success?
+Reduction in production incidents
+Fewer critical vulnerabilities reaching prod
+Faster MTTR
+Higher PR-level detection rate
