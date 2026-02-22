@@ -275,3 +275,13 @@ Higher PR-level detection rate
 # What is Shift-Right Security in DevOps?
 Shift-Right Security is a DevSecOps practice that focuses on security after deployment, i.e., in production and runtime, rather than only during design, coding, or CI/CD.
 Shift-Right Security means continuously monitoring, detecting, and responding to security threats in live production environments using runtime visibility, real-time alerts, and automated remediation.
+
+
+# You want a shallow clone — it grabs only the latest snapshot instead of the full history.
+ $ git clone --depth 1 <repo-url>
+
+Clone a specific branch only
+git clone --depth 1 --branch main <repo-url>
+
+
+
