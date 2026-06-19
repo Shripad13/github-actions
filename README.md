@@ -24,10 +24,23 @@ Static Code Analysis Tools (SCA) - SonarQube, Checkmarx, Veracode, Snyk, WhiteSo
 
 ##
 Workflows are our pipelines
-Job - Job can have number of steps
-Step - A step can be an action or a script to be executed
+Workflows - Automation process defined in .github/workflows/*.yml
+Job - Group of steps running on the same runner.
+Step - A step can be an action or a script to be executed/ Individual task inside a job.
 Action - An action is a reusable extension that can be used in a step
 Runners - will be maintained by you.
+
+# Basic Syntax of Workflow file -
+name: CI
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install
+      - run: npm test
 
 # Github Action Runner Enrollment Steps -
 1. We can enroll the runner at repo level that means only workflows under that repo can use that self-hosted runner.
@@ -51,6 +64,106 @@ for go application - we compile the code using go build commands.
 # How Unit Testing-
 $ npm test - command is used for unit testing in package.json file of nodejs application.
 $ npm verify - command used for integration testing in package.json file of nodejs application.
+
+# Real Enterprise Flow
+
+Feature Branch
+   ↓
+Pull Request
+   ↓
+develop → DEV deploy
+   ↓
+qa → QA deploy
+   ↓
+staging → STAGING deploy
+   ↓
+main → PROD deploy
+
+# Most Maintainable Pattern
+Single reusable deployment workflow
++
+Environment secrets
++
+Branch-based triggers
++
+Approval gates for production
++
+Infra as code
+
+# Recommended Folder Structure
+.github/
+└── workflows/
+    ├── ci.yml
+    ├── deploy.yml
+    └── reusable-deploy.yml
+
+
+
+# Environment Secrets (Highly Recommended)
+Store different secrets:
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+DB_URL
+API_URL
+
+Usage like below -
+ env:
+  API_URL: ${{ secrets.API_URL }}
+  DB_URL: ${{ secrets.DB_URL }}
+
+# If deploying to multiple regions/services:
+strategy:
+  matrix:
+    region: [us-east-1, ap-south-1]  
+
+
+# Use Concurrency
+Avoid overlapping deployments:
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+
+> github.sha is a built-in context variable in GitHub Actions that represents the commit SHA (hash) of the code that triggered the workflow.
+
+# github.sha   comes from
+It depends on what triggered the workflow:
+Push event → the commit that was pushed
+Pull request event → the merge commit or PR head commit (depending on config)
+Workflow dispatch → the commit you selected or latest branch commit
+
+| ------------------- | --------------------------------- |
+| Variable            | Meaning                           |
+| ------------------- | --------------------------------- |
+| `github.sha`        | Full commit hash                  |
+| `github.ref`        | Full branch or tag ref            |
+| `github.ref_name`   | Clean branch name (`main`, `dev`) |
+| `github.actor`      | User who triggered workflow       |
+| `github.repository` | repo name                         |
+| ------------------- | --------------------------------- |
+
+# How to use github.sha in workflow?
+- name: Build and Tag Docker Image
+  run: |
+    docker build -t myapp:${{ github.sha }} .
+    docker tag myapp:${{ github.sha }} myrepo/myapp:${{ github.sha }}
+    docker push myrepo/myapp:${{ github.sha }}
+
+# What is the difference between a fast forward merge & a 3-way merge?
+Fast forward merge:
+- Occurs when the branch being merged has not diverged from the target branch.
+- Simply moves the target branch pointer forward to the latest commit of the source branch.
+- No new commit is created for the merge.
+3-way merge:
+- Happens when the source branch has diverged from the target branch (i.e., both branches have new commits).
+- Git creates a new merge commit that combines the changes from both branches.
+- Requires a common ancestor commit to perform the merge.
+
+# Can you explain what git blame does and when you might use it?
+`git blame` is a command that shows the last modification for each line of a file, including the author and the commit hash. It is used to identify who made changes to specific lines of code and when those changes were made. This can be helpful for debugging, understanding the history of a file, or finding out why a particular change was made.
+
+
+
 
 # STATIC CODE ANALYSIS TOOLS (SCA) - 
 '''
@@ -282,6 +395,68 @@ Shift-Right Security means continuously monitoring, detecting, and responding to
 
 Clone a specific branch only
 git clone --depth 1 --branch main <repo-url>
+
+
+
+
+3. What types of GitHub Actions runners have you used?
+ 1. GitHub Hosted Runner
+Managed by GitHub.
+Examples:
+ubuntu-latest
+windows-latest
+macos-latest
+
+ 2. Self Hosted Runner
+Hosted inside:
+AWS EC2
+Kubernetes
+Azure VM
+On-premise
+
+Benefits:
+Custom software
+Internal network access
+Better performance
+Cost optimization
+
+Interview Tip:
+Mention you've configured self-hosted runners for deployment to private infrastructure.
+
+
+4. What are GitHub Secrets?
+ Secrets securely store sensitive information such as:
+AWS keys
+Docker credentials
+API tokens
+Kubernetes configs
+
+Example:
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+
+Best practices:
+
+Never hardcode credentials
+Use OIDC instead of long-lived secrets
+Rotate secrets regularly
+
+When using GitHub Actions for CI/CD, the recommended place to store secrets is **GitHub Secrets** rather than hard-coding them in your repository or workflow files.
+
+1. Repository Secrets - Available only to workflows in a specific repository.
+ Settings → Secrets and variables → Actions → Repository secrets
+
+2. Environment Secrets-
+Useful when you have different environments such as dev, staging, and production.
+ Settings → Environments → production → Secrets
+
+3. Organization Secrets -
+Shared across multiple repositories in a GitHub organization.
+ Settings → Secrets and variables → Actions → Organization secrets 
+
+
+5. What is OIDC in GitHub Actions?
+   OIDC (OpenID Connect) allows GitHub Actions to authenticate directly with cloud providers without storing long-term credentials.
 
 
 

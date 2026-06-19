@@ -1,0 +1,45 @@
+# This dynamically selects the environment based on the branch being pushed to and deploys the application accordingly. 
+# The workflow is triggered on pushes to the develop, qa, staging, and main branches. It sets an environment variable based on the branch name and then runs a deployment command that can be customized to fit your specific deployment process.
+
+name: Deploy Pipeline
+
+on:
+  push:
+    branches:
+      - develop
+      - qa
+      - staging
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Environment Variables
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == "develop" ]]; then
+            echo "ENV=dev" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF_NAME}" == "qa" ]]; then
+            echo "ENV=qa" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
+            echo "ENV=staging" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "ENV=prod" >> $GITHUB_ENV
+          fi
+
+      - name: Print Environment
+        run: echo "Deploying to $ENV"
+
+      - name: Deploy Application
+        run: |
+          echo "Deploying application to $ENV"
+
+          # Example deployment command
+          # kubectl apply -f k8s/$ENV/
