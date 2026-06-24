@@ -262,7 +262,7 @@ Update the Quality Gate as per our requirement & standards for Passed & Failed.
 # problem Statement -
 We dont want the token to be copy pasted from Github Actions from UI all the time to code.
 I want this to be fetched all the time dynamically from github secrets.
-Github offers, "gh cli" using from the ci-runner connect eith github, get the token & run.
+Github offers, "gh cli" using from the ci-runner connect with github, get the token & run.
 
 Solution - Use this gh API to fetch runner token dynamically from github secrets.
 ```
@@ -340,7 +340,7 @@ aws ecr start-image-scan --repository-name sample-repo --image-id imageTag=${e88
 
 # Implement 4 golden signals for expense app on EKS
 1. Prometheus & grafana on Standalone instance, we dont need them anymore
-2. We can deploy rometheus & grafana on the same EKS Cluster
+2. We can deploy prometheus & grafana on the same EKS Cluster
 
 #################################################################################
 
