@@ -223,6 +223,8 @@ DAST - endpoint of application can be tested (Whitebox testing (OWASP ZAP, Acune
 8. Technical Debt - Estimated time to fix all maintainability issues.
 9. New Bugs & Vulnerabilities, Debt, Code Smells - Issues introduced in the latest code changes.
 
+Code smells - they indicate poor software design patterns—such as dead code, massive classes, or duplicated logic—that lead to long-term technical debt 
+
 We can maintain Sonarqube on our server
 We can go with Software as Service
 
@@ -301,7 +303,7 @@ before that, ci-runner needs a vault token, This vault token, will keep it on Gi
 # Container scanning - 
 Container scanning tools analyze container images (like Docker) for vulnerabilities, misconfigurations, and secrets, integrating into CI/CD pipelines to find issues early, with popular open-source options like Trivy, Grype, and Clair, and enterprise platforms including Snyk, Wiz, Aqua Security, and Prisma Cloud, helping developers shift security left for more secure deployments. 
 
-Because we will have Base image in Docker image (node image/alpine image) that hsould not contain vulnerabilities & issues
+Because we will have Base image in Docker image (node image/alpine image) that should not contain vulnerabilities & issues
 
 1. Push the image to ECR.
 2. Change scan setting to Manual on ECR. (IMP Step)
