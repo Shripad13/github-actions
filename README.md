@@ -462,3 +462,62 @@ Shared across multiple repositories in a GitHub organization.
 
 
 
+1. Question 1: How do you design and enforce the principle of least privilege across a large GitHub Enterprise footprint with multiple organizations?
+   "I enforce the principle of least privilege by structuring access across three layers: the Enterprise level, the Organization level, and the Repository level. 
+   First, I integrate our Identity Provider via SAML SSO and utilize Enterprise Managed Users (EMUs) to automate lifecycle management and offboarding.
+   Instead of granting global administrative or organization owner permissions, I use Custom Organization Roles to provision fine-grained permissions for teams. 
+   I restrict repository creation to specific templates, mandate branch protection rules via Enterprise Policies, and restrict third-party integrations by enforcing an OAuth app and GitHub App approval workflow to minimize external security vectors."
+
+2. Question 2: A developer complains that their workflow is blocked because an unapproved third-party GitHub Action is being filtered out. How do you manage Actions policies securely?   
+   "I control this through GitHub Actions Policies at the Enterprise or Organization level. 
+   To maintain security without killing developer velocity, we disable 'Allow all actions' and instead select 'Allow select actions and reusable workflows'.
+   If a team requires a new third-party action, they submit a request. 
+   I check if the action is created by a Verified Creator or exists in our internal securely-forked marketplace. 
+   If verified, I add the specific action SHA (rather than the mutable version tag like @v2) to our allowed list policy. This prevents supply chain attacks while keeping our pipelines secure."
+
+3. Question 3: How do you provision and scale self-hosted GitHub Actions runners across both Linux and Windows platforms to guarantee high availability?
+   "To ensure high availability and prevent resource starvation, I avoid static VM setups. 
+   For Linux workloads, I leverage the Actions Runner Controller (ARC) deployed on Kubernetes. 
+   ARC dynamically scales ephemeral runner pods up or down based on the webhook events received from GitHub Enterprise.
+   
+   For Windows workloads (often required for .NET frameworks), I provision auto-scaling groups in our cloud environment using Ansible to build out the base image. 
+   I use a combination of persistent monitoring metrics (like queue depth via the GitHub API) and custom cleanup scripts to ensure these runners tear down or reset after handling job execution, guaranteeing a pristine, repeatable environment for the next CI/CD run."
+
+4. Question 4: What security risks are associated with self-hosted runners, and how do you mitigate them?
+   The primary risk with self-hosted runners is container breakout or malicious code execution on the host network, especially from public repositories or fork pull requests. 
+   To mitigate this, 
+   first, I segregate runners into distinct Runner Groups isolated by network firewalls, restricting their access to our internal production environment.
+   
+   Second, we strictly disable self-hosted runners for public repositories. 
+   
+   Third, we enforce the use of ephemeral runners—meaning the runner registration token is short-lived and the underlying container or instance is instantly destroyed right after a single job completes. 
+   This ensures no malicious state or caching persists.
+
+5. Question 5: How do you structure your Ansible playbooks and roles to ensure infrastructure consistency and idempotency across heterogeneous environments?
+   I follow the standard Ansible role directory structure to separate logic, variables, and templates, ensuring reusability across Linux and Windows. 
+
+   To handle multi-platform target nodes cleanly, I decouple the OS-specific tasks using include_tasks paired with ansible_os_family conditionals.
+
+   Every task I write strictly adheres to idempotency—using modules like template instead of raw shell commands, and explicitly defining required states (state: present or state: started). 
+
+   I also integrate Ansible-Lint into our pre-commit hooks and validate all configuration changes inside an isolated staging environment before rolling them out to production runners.
+
+6. Question 6: Can you give an example of a custom Python automation script or integration you built to optimize developer workflows?
+   I previously built a Python automation tool using the PyGithub library and GitHub REST APIs to streamline our organization's repository onboarding. 
+   Manually configuring new repositories with branch protection, adding required team permissions, and setting up secret tokens was taking hours and leading to human error.
+   I wrote a CLI script that takes an onboarding configuration file, automatically provisions the repo, applies strict branch protections (requiring status checks and PR reviews), syncs the requested AD groups, and injects default CI/CD variables. 
+   This reduced our onboarding time from 2 hours to under 30 seconds while guaranteeing total policy compliance.   
+
+7. Question 7: How do you monitor GitHub Enterprise platform efficiency, and what metrics matter most to you?
+   I monitor platform health using two main lenses: Infrastructure health and Workflow efficiency. 
+   I pull webhooks and audit logs into a centralized dashboard to track runner CPU/memory saturation and job failure rates.
+   The core metrics I prioritize are Workflow Queue Time (how long a developer waits for a runner to pick up a job) and Build Duration. 
+   If queue times spike, it triggers our autoscaler to spin up more runners. 
+   If build duration increases, we analyze caching layers (like actions/cache) or network bottlenecks to optimize the platform efficiency.
+
+8. Question 8: As a senior engineer, how do you approach mentoring junior DevOps engineers while maintaining high delivery standards?
+   I foster a culture of continuous learning by balancing structured guidance with autonomy. 
+   I avoid micro-management; instead, I champion comprehensive technical documentation, architecture design reviews, and pairing exercises.
+   When junior team members work on infrastructure modules, we implement thorough Code Reviews and run validation tests in non-production sandboxes. 
+   This gives them the confidence to build and deploy complex Ansible playbooks safely, knowing we have automated safety nets in place. 
+   I also hold bi-weekly knowledge-sharing sessions where team members can present new automation tools or post-mortem lessons learned.   
