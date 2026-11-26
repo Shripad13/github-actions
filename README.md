@@ -201,14 +201,14 @@ In Security Check or Testing:
 
  # DAST - Dynamic Application Security Testing 
  1. It is performed on running application.
- 2. After the deployment, Using the endpoint of your application does the Whitebox Testing.
+ 2. After the deployment, Using the endpoint of your application does the black-box Testing.
    
 
 ```
 Static Code Analysis - Pushed to the repo & check as per org standards or not (SonarQube tool)
 SAST                 - Overall Security Posture of code (CheckMarx) & industry std
 Software Composition Analysis - Open Source libraries Vulnerability (CheckMarx SCA) & licensing issues or not?
-DAST - endpoint of application can be tested (Whitebox testing (OWASP ZAP, Acunetix)) (Post Deployment)
+DAST - endpoint of application can be tested (black-box testing (OWASP ZAP, Acunetix)) (Post Deployment)
 ```
 
 
