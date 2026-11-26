@@ -381,6 +381,61 @@ IaC Scanning: Checkov, tfsec
 Containers: Trivy
 Policy: OPA, Kyverno
 
+# SonarQube
+SonarQube automates code quality and security checks inside your CI/CD pipeline, blocking bad code from reaching production using configurable thresholds called Quality Gates.
+
+
+1. Basic Steps to Set Up SonarQube Integration
+
+• Deploy or connect to SonarQube. Run a self-hosted SonarQube Server (e.g., via Docker) or create an account on SonarQube Cloud.
+• Create a project and generate a token. Log into the SonarQube UI, create a new project to get a unique projectKey, and generate an authentication token (SONAR_TOKEN).
+• Configure CI/CD secrets. Store your SonarQube server URL (SONAR_HOST_URL) and token (SONAR_TOKEN) as encrypted environment variables or secrets in your CI/CD tool (such as GitHub Actions, GitLab CI, or Jenkins).
+• Add a scanner step to your pipeline. Configure your build pipeline to run the SonarScanner (or use built-in plugins for Maven, Gradle, or .NET) whenever code is pushed or a pull request is opened.
+
+
+2. What is the sonar-project.properties File?
+This file tells the SonarScanner how to identify and analyze your codebase. Common parameters include:
+• sonar.projectKey=my-app (Unique identifier matching your SonarQube project)
+• sonar.sources=src (Directories containing the main source code to scan)
+• sonar.tests=tests (Directories containing test files)
+• sonar.exclusions=**/node_modules/** (Files or folders to ignore during analysis)
+• sonar.sourceEncoding=UTF-8 (Character encoding of your files)
+
+Note: If you use Maven or Gradle, these properties are usually defined inside pom.xml or build.gradle instead of a separate properties file.
+
+
+3. What are Quality Gates & How Do You Set Them?
+
+A Quality Gate is an automated pass/fail checkpoint that answers one question: "Is this code ready for release?" It evaluates your scan results against a set of rules—such as minimum test coverage (e.g., >80%), zero new bugs, or an "A" security rating. 
+
+By default, SonarQube applies the built-in "Sonar way" gate, which focuses on keeping new code clean.
+
+How to set a custom Quality Gate:
+1. Go to Quality Gates in the top navigation bar of the SonarQube dashboard and click Create.
+2. Name your gate and click Add Condition.
+3. Choose whether the rule applies to New Code or Overall Code, select a metric (e.g., Security Rating, Coverage, or New Vulnerabilities), and set the failure threshold.
+4. Go to your specific project's Project Settings > Quality Gate and assign your new gate (or set it as the global default).
+
+
+
+4. What Do You Do With SonarQube Vulnerabilities?
+
+When SonarQube flags a security vulnerability, review it in the Issues tab of your project dashboard and follow a triage workflow:
+• Inspect the flaw. Click the vulnerability to view the exact line of code, the data flow trace (how user input reaches a sensitive function), and SonarQube's "Why is this an issue?" and "How can I fix it?" tabs.
+• Fix the code. Refactor the vulnerable code following the remediation guidelines (e.g., using parameterized queries to prevent SQL injection) and push a new commit.
+• Triage false positives or accepted risks. If a finding is safe in your specific context, an authorized user can change its status in the UI to False Positive or Accepted (with a mandatory comment explaining why) so it no longer blocks builds.
+
+5.  What Happens When a Pipeline Fails Due to a Quality Gate?
+
+If you configure your scanner to wait for the gate result 
+(e.g., passing -Dsonar.qualitygate.wait=true or using a quality gate check step):
+
+• The CI/CD job immediately stops and marks the build as failed.
+• Downstream steps are blocked. Deployment scripts, container builds, or artifact publishing steps will not execute.
+• Pull requests are blocked from merging. If integrated with GitHub, GitLab, or Bitbucket, SonarQube decorates the pull request with a failed status check, preventing developers from merging flawed code into the main branch.
+
+
+
 # How do you measure Shift-Left success?
 Reduction in production incidents
 Fewer critical vulnerabilities reaching prod
